@@ -33,9 +33,10 @@ defmodule Parsey do
 
     @type name :: atom
     @type matcher :: Regex.t | (String.t -> (nil | [{ integer, integer }]))
+    @type formatter :: String.t | (String.t -> String.t)
     @type option :: any
     @type excluder :: name | { name, option }
-    @type rule :: { name, matcher } | { name, %{ :match => matcher, :capture => non_neg_integer, :format => (String.t -> String.t), :option => option, :ignore => boolean, :exclude => excluder | [excluder], :include => rule | [rule], :rules => rule | [rule] } }
+    @type rule :: { name, matcher } | { name, %{ :match => matcher, :capture => non_neg_integer, :format => formatter, :option => option, :ignore => boolean, :exclude => excluder | [excluder], :include => rule | [rule], :rules => rule | [rule] } }
     @type ast :: String.t | { name, [ast] } | { name, [ast], option }
 
     @doc """
@@ -184,6 +185,7 @@ defmodule Parsey do
 
     @doc false
     @spec format(String.t, rule) :: String.t
+    defp format(input, { _, %{ format: string } }) when is_binary(string), do: string
     defp format(input, { _, %{ format: func } }), do: func.(input)
     defp format(input, _), do: input
 end

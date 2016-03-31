@@ -22,6 +22,7 @@ defmodule ParseyTest do
 
     test "simple formatting" do
         assert [{ :test, ["ac"] }] == Parsey.parse("abc", test: %{ match: ~r/abc/, format: &String.replace(&1, "b", "") })
+        assert [{ :test, ["hello"] }] == Parsey.parse("abc", test: %{ match: ~r/abc/, format: "hello" })
     end
 
     test "simple options" do
