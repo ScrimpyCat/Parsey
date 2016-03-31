@@ -14,6 +14,10 @@ defmodule ParseyTest do
             <<"e", _ :: binary>> -> [{ 0, 1 }]
             _ -> nil
         end])
+        assert [{ :test, ["abc"] }] == Parsey.parse("abc", test: ~r/abc/)
+        assert [{ :test, ["a"] }] == Parsey.parse("abc", test: ~r/(a)bc/)
+        assert [{ :test, ["c"] }] == Parsey.parse("abc", test: ~r/(a)(b)(c)/)
+        assert [{ :test, ["b"] }] == Parsey.parse("abc", test: %{ match: ~r/(a)(b)(c)/, capture: 2 })
     end
 
     test "simple options" do

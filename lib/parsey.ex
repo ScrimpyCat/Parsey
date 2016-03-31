@@ -35,7 +35,7 @@ defmodule Parsey do
     @type matcher :: Regex.t | (String.t -> (nil | [{ integer, integer }]))
     @type option :: any
     @type excluder :: name | { name, option }
-    @type rule :: { name, matcher } | { name, %{ :match => matcher, :option => option, :ignore => boolean, :exclude => excluder | [excluder], :include => rule | [rule], :rules => rule | [rule] } }
+    @type rule :: { name, matcher } | { name, %{ :match => matcher, :capture => non_neg_integer, :option => option, :ignore => boolean, :exclude => excluder | [excluder], :include => rule | [rule], :rules => rule | [rule] } }
     @type ast :: String.t | { name, [ast] } | { name, [ast], option }
 
     @doc """
@@ -124,9 +124,11 @@ defmodule Parsey do
     @doc false
     @spec make_node(String.t, rule, nil | [{ integer, integer }], [rule]) :: { String.t, ast } | nil
     defp make_node(_, _, nil, _), do: nil
-    defp make_node(input, rule, indexes, rules) do
-        { index, length } = List.last(indexes)
-        { entire_index, entire_length } = List.first(indexes)
+    defp make_node(input, rule = { _, %{ capture: capture } }, indexes, rules), do: make_node(input, rule, indexes, Enum.at(indexes, capture), rules)
+    defp make_node(input, rule, indexes, rules), do: make_node(input, rule, indexes, List.last(indexes), rules)
+
+    @spec make_node(String.t, rule, [{ integer, integer }], { integer, integer }, [rule]) :: { String.t, ast }
+    defp make_node(input, rule, indexes = [{ entire_index, entire_length }|_], { index, length }, rules) do
         { String.slice(input, (entire_index + entire_length)..-1), node(String.slice(input, index, length), rule, remove_rules(rules, rule) |> include_rules(rule) |> replace_rules(rule), input, indexes) }
     end
 
