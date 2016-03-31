@@ -151,7 +151,7 @@ defmodule Parsey do
         Enum.filter(rules, fn
             { rule, %{ option: rule_option } } -> !Enum.any?(names, fn
                 { name, option } -> rule == name and rule_option == option
-                _ -> false
+                name -> rule == name
             end)
             { rule, _ } -> !Enum.any?(names, fn
                 { _name, _option } -> false
