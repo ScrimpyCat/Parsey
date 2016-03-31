@@ -20,6 +20,10 @@ defmodule ParseyTest do
         assert [{ :test, ["b"] }] == Parsey.parse("abc", test: %{ match: ~r/(a)(b)(c)/, capture: 2 })
     end
 
+    test "simple formatting" do
+        assert [{ :test, ["ac"] }] == Parsey.parse("abc", test: %{ match: ~r/abc/, format: &String.replace(&1, "b", "") })
+    end
+
     test "simple options" do
         assert ["t", { :vowel, ["e"], :test }, "st"] == Parsey.parse("test", [vowel: %{ match: ~r/\A[aeiou]+/, option: :test }])
         assert [{ :bracket, [{ :consonant, ["t"], :t }, { :vowel, ["e"] }, { :consonant, ["s"] }, { :consonant, ["t"], :t }] }] == Parsey.parse("(test)", [bracket: ~r/\A\((.*?)\)/, vowel: ~r/\A[aeiou]+/, consonant: ~r/\A([^aeiout]+)/, consonant: %{ match: ~r/\A(t)/, option: :t }])

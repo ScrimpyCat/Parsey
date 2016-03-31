@@ -35,7 +35,7 @@ defmodule Parsey do
     @type matcher :: Regex.t | (String.t -> (nil | [{ integer, integer }]))
     @type option :: any
     @type excluder :: name | { name, option }
-    @type rule :: { name, matcher } | { name, %{ :match => matcher, :capture => non_neg_integer, :option => option, :ignore => boolean, :exclude => excluder | [excluder], :include => rule | [rule], :rules => rule | [rule] } }
+    @type rule :: { name, matcher } | { name, %{ :match => matcher, :capture => non_neg_integer, :format => (String.t -> String.t), :option => option, :ignore => boolean, :exclude => excluder | [excluder], :include => rule | [rule], :rules => rule | [rule] } }
     @type ast :: String.t | { name, [ast] } | { name, [ast], option }
 
     @doc """
@@ -135,9 +135,10 @@ defmodule Parsey do
     defp make_node(input, rule = { _, %{ capture: capture } }, indexes, rules), do: make_node(input, rule, indexes, Enum.at(indexes, capture), rules)
     defp make_node(input, rule, indexes, rules), do: make_node(input, rule, indexes, List.last(indexes), rules)
 
+    @doc false
     @spec make_node(String.t, rule, [{ integer, integer }], { integer, integer }, [rule]) :: { String.t, ast }
     defp make_node(input, rule, indexes = [{ entire_index, entire_length }|_], { index, length }, rules) do
-        { String.slice(input, (entire_index + entire_length)..-1), node(String.slice(input, index, length), rule, remove_rules(rules, rule) |> include_rules(rule) |> replace_rules(rule), input, indexes) }
+        { String.slice(input, (entire_index + entire_length)..-1), node(format(String.slice(input, index, length), rule), rule, remove_rules(rules, rule) |> include_rules(rule) |> replace_rules(rule), input, indexes) }
     end
 
     @doc false
@@ -180,4 +181,9 @@ defmodule Parsey do
     @spec replace_rules([rule], rule) :: [rule]
     defp replace_rules(_, { _, %{ rules: new_rules } }), do: new_rules
     defp replace_rules(rules, _), do: rules
+
+    @doc false
+    @spec format(String.t, rule) :: String.t
+    defp format(input, { _, %{ format: func } }), do: func.(input)
+    defp format(input, _), do: input
 end
