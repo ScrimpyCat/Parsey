@@ -42,6 +42,9 @@ defmodule ParseyTest do
 
     test "simple ignore" do
         assert [{ :consonant, ["t"] }, { :consonant, ["st"] }] == Parsey.parse("test", [vowel: %{ match: ~r/\A[aeiou]+/, ignore: true }, consonant: ~r/\A[^aeiou]+/])
+        assert ["t", "t"] == Parsey.parse("test", [invalid: %{ match: ~r/\A[^t]/, ignore: true }])
+        assert ["t", "t"] == Parsey.parse("tests", [invalid: %{ match: ~r/\A[^t]/, ignore: true }])
+        assert [{ :valid, ["t"] }, { :valid, ["t"] }] == Parsey.parse("test", [invalid: %{ match: ~r/\A[^t]/, ignore: true }, valid: ~r/\At/])
     end
 
     test "complex parsing Lisp-like" do

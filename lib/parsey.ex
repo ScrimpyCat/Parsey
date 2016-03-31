@@ -95,11 +95,19 @@ defmodule Parsey do
 
     @doc false
     @spec parse(String.t, [rule], [ast]) :: [ast]
+    defp parse("", _, [nil|nodes]), do: Enum.reverse(nodes)
     defp parse("", _, nodes), do: Enum.reverse(nodes)
     defp parse(input, rules, [string|nodes]) when is_binary(string) do
         case get_node(input, rules) do
             { next, node } -> parse(next, rules, [node, string|nodes])
             nil -> parse(String.slice(input, 1..-1), rules, [string <> String.first(input)|nodes])
+        end
+    end
+    defp parse(input, rules, [nil|nodes]) do
+        case get_node(input, rules) do
+            { next, nil } -> parse(next, rules, [nil|nodes])
+            { next, node } -> parse(next, rules, [node|nodes])
+            nil -> parse(String.slice(input, 1..-1), rules, [String.first(input)|nodes])
         end
     end
     defp parse(input, rules, nodes) do
