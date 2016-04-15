@@ -53,3 +53,11 @@ Parsey.parse(input, rules)
 #    ], "array" },
 #]
 ```
+
+Installation
+------------
+```elixir
+defp deps do
+    [{ :parsey, "~> 0.0.1" }]
+end
+```

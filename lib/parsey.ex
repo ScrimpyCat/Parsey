@@ -185,7 +185,7 @@ defmodule Parsey do
 
     @doc false
     @spec format(String.t, rule) :: String.t
-    defp format(input, { _, %{ format: string } }) when is_binary(string), do: string
+    defp format(_, { _, %{ format: string } }) when is_binary(string), do: string
     defp format(input, { _, %{ format: func } }), do: func.(input)
     defp format(input, _), do: input
 end

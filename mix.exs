@@ -9,7 +9,8 @@ defmodule Parsey.Mixfile do
             elixir: "~> 1.2",
             build_embedded: Mix.env == :prod,
             start_permanent: Mix.env == :prod,
-            deps: deps
+            deps: deps,
+            package: package
         ]
     end
 
@@ -33,6 +34,14 @@ defmodule Parsey.Mixfile do
         [
             { :earmark, "~> 0.1", only: :dev },
             { :ex_doc, "~> 0.7", only: :dev }
+        ]
+    end
+
+    defp package do
+        [
+            maintainers: ["Stefan Johnson"],
+            licenses: ["BSD 2-Clause"],
+            links: %{ "GitHub" => "https://github.com/ScrimpyCat/Parsey" }
         ]
     end
 end
