@@ -57,7 +57,11 @@ Parsey.parse(input, rules)
 Installation
 ------------
 ```elixir
-defp deps do
-    [{ :parsey, "~> 0.0.1" }]
+def applications do
+    [applications: [:parsey]]
+end
+
+def deps do
+    [{ :parsey, "~> 0.0.2" }]
 end
 ```

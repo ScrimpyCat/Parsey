@@ -5,7 +5,7 @@ defmodule Parsey.Mixfile do
         [
             app: :parsey,
             description: "A library to parse non-complex nested inputs with a given ruleset.",
-            version: "0.0.1",
+            version: "0.0.2",
             elixir: "~> 1.2",
             build_embedded: Mix.env == :prod,
             start_permanent: Mix.env == :prod,
