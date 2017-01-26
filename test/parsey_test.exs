@@ -18,6 +18,7 @@ defmodule ParseyTest do
         assert [{ :test, ["a"] }] == Parsey.parse("abc", test: ~r/(a)bc/)
         assert [{ :test, ["c"] }] == Parsey.parse("abc", test: ~r/(a)(b)(c)/)
         assert [{ :test, ["b"] }] == Parsey.parse("abc", test: %{ match: ~r/(a)(b)(c)/, capture: 2 })
+        assert [{ :unicode, ["abcdé"] }, "fghik"] == Parsey.parse("abcdéfghik", unicode: ~r/\A(abcdé)/)
     end
 
     test "simple formatting" do

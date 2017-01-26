@@ -50,11 +50,11 @@ defmodule Parsey do
         ...>     element: %{ match: fn
         ...>         input = <<"<", _ :: binary>> ->
         ...>             elements = String.splitter(input, "<", trim: true)
-        ...> 
+        ...>
         ...>             [first] = Enum.take(elements, 1)
         ...>             [{ 0, tag_length }] = Regex.run(~r/\\A.*?>/, first, return: :index)
         ...>             tag_length = tag_length + 1
-        ...> 
+        ...>
         ...>             { 0, length } = Stream.drop(elements, 1) |> Enum.reduce_while({ 1, 0 }, fn
         ...>                 element = <<"/", _ :: binary>>, { 1, length } ->
         ...>                     [{ 0, tag_length }] = Regex.run(~r/\\A.*?>/, element, return: :index)
@@ -62,7 +62,7 @@ defmodule Parsey do
         ...>                 element = <<"/", _ :: binary>>, { count, length } -> { :cont, { count - 1, length + String.length(element) + 1 } }
         ...>                 element, { count, length } -> { :cont, { count + 1, length + String.length(element) + 1 } }
         ...>             end)
-        ...> 
+        ...>
         ...>             length = length + String.length(first) + 1
         ...>             [{ 0, length }, {1, tag_length - 2}, { tag_length, length - tag_length }]
         ...>         _ -> nil
@@ -139,7 +139,9 @@ defmodule Parsey do
     @doc false
     @spec make_node(String.t, rule, [{ integer, integer }], { integer, integer }, [rule]) :: { String.t, ast }
     defp make_node(input, rule, indexes = [{ entire_index, entire_length }|_], { index, length }, rules) do
-        { String.slice(input, (entire_index + entire_length)..-1), node(format(String.slice(input, index, length), rule), rule, remove_rules(rules, rule) |> include_rules(rule) |> replace_rules(rule), input, indexes) }
+        match_total = entire_index + entire_length
+        <<_ :: unit(8)-size(match_total), next :: binary>> = input
+        { next, node(format(binary_part(input, index, length), rule), rule, remove_rules(rules, rule) |> include_rules(rule) |> replace_rules(rule), input, indexes) }
     end
 
     @doc false
