@@ -62,6 +62,6 @@ def applications do
 end
 
 def deps do
-    [{ :parsey, "~> 0.0.2" }]
+    [{ :parsey, "~> 0.0.3" }]
 end
 ```
