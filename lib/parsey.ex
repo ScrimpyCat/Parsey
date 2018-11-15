@@ -36,7 +36,7 @@ defmodule Parsey do
     @type formatter :: String.t | (String.t -> String.t)
     @type option :: any
     @type excluder :: name | { name, option }
-    @type rule :: { name, matcher } | { name, %{ :match => matcher, :capture => non_neg_integer, :format => formatter, :option => option, :ignore => boolean, :exclude => excluder | [excluder], :include => rule | [rule], :rules => rule | [rule] } }
+    @type rule :: { name, matcher } | { name, %{ :match => matcher, :capture => non_neg_integer, :format => formatter, :option => option, :ignore => boolean, :skip => boolean, :exclude => excluder | [excluder], :include => rule | [rule], :rules => rule | [rule] } }
     @type ast :: String.t | { name, [ast] } | { name, [ast], option }
 
     @doc """
@@ -96,8 +96,7 @@ defmodule Parsey do
 
     @doc false
     @spec parse(String.t, [rule], [ast]) :: [ast]
-    defp parse("", _, [nil|nodes]), do: Enum.reverse(nodes)
-    defp parse("", _, nodes), do: Enum.reverse(nodes)
+    defp parse("", _, nodes), do: flatten(nodes)
     defp parse(input, rules, [string|nodes]) when is_binary(string) do
         case get_node(input, rules) do
             { next, node } -> parse(next, rules, [node, string|nodes])
@@ -118,6 +117,14 @@ defmodule Parsey do
             nil -> parse(String.slice(input, 1..-1), rules, [String.first(input)|nodes])
         end
     end
+
+    @doc false
+    @spec flatten([ast | nil], [ast]) :: [ast]
+    defp flatten(nodes, list \\ [])
+    defp flatten([], nodes), do: nodes
+    defp flatten([nil|nodes], list), do: flatten(nodes, list)
+    defp flatten([node|nodes], list) when is_list(node), do: flatten(nodes, node ++ list)
+    defp flatten([node|nodes], list), do: flatten(nodes, [node|list])
 
     @doc false
     @spec get_node(String.t, [rule]) :: { String.t, ast | nil } | nil
@@ -147,6 +154,7 @@ defmodule Parsey do
     @doc false
     @spec node(String.t, rule, [rule], String.t, [{ integer, integer }]) :: ast | nil
     defp node(_, { _, %{ ignore: true } }, _, _, _), do: nil
+    defp node(input, { _, %{ skip: true } }, rules, _, _), do: parse(input, rules)
     defp node(input, { name, %{ option: option } }, rules, original, indexes) when is_function(option), do: { name, parse(input, rules), option.(original, indexes) }
     defp node(input, { name, %{ option: option } }, rules, _, _), do: { name, parse(input, rules), option }
     defp node(input, { name, _ }, rules, _, _), do: { name, parse(input, rules) }

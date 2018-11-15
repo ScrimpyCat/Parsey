@@ -53,6 +53,13 @@ defmodule ParseyTest do
         assert [{ :valid, ["t"] }, { :valid, ["t"] }] == Parsey.parse("test", [invalid: %{ match: ~r/\A[^t]/, ignore: true }, valid: ~r/\At/])
     end
 
+    test "simple skip" do
+        assert ["test"] == Parsey.parse("(test)", [bracket: %{ match: ~r/\A\((.*?)\)/, rules: [], skip: true }, vowel: ~r/\A[aeiou]+/, consonant: ~r/\A([^aeiout]+)/, consonant: %{ match: ~r/\A(t)/, option: :t }])
+        assert [{ :consonant, ["t"], :t }, { :vowel, ["e"] }, { :consonant, ["s"] }, { :consonant, ["t"], :t }] == Parsey.parse("(test)", [bracket: %{ match: ~r/\A\((.*?)\)/, skip: true }, vowel: ~r/\A[aeiou]+/, consonant: ~r/\A([^aeiout]+)/, consonant: %{ match: ~r/\A(t)/, option: :t }])
+        assert ["t", { :vowel, ["e"] }, "st"] == Parsey.parse("(test)", [bracket: %{ match: ~r/\A\((.*?)\)/, exclude: :consonant, skip: true }, vowel: ~r/\A[aeiou]+/, consonant: ~r/\A([^aeiout]+)/, consonant: %{ match: ~r/\A(t)/, option: :t }])
+        assert [{ :consonant, ["f"] }, { :vowel, ["oo"] }, "t", { :vowel, ["e"] }, "st", "b", { :vowel, ["a"] }, "r"] == Parsey.parse("foo(test)(b[ar])", [bracket: %{ match: ~r/\A\((.*?)\)/, exclude: :consonant, skip: true }, bracket: %{ match: ~r/\A\[(.*?)\]/, exclude: :consonant, skip: true }, vowel: ~r/\A[aeiou]+/, consonant: ~r/\A([^aeiout\(\)]+)/, consonant: %{ match: ~r/\A(t)/, option: :t }])
+    end
+
     test "complex parsing Lisp-like" do
         rules = [
             whitespace: %{ match: ~r/\A\s/, ignore: true },
